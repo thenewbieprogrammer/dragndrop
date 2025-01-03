@@ -1,0 +1,19 @@
+#IdeaJ Webstorm
+.idea
+# Cache files
+.eslintcache
+.npm
+*.tsbuildinfo
+# Directories
+dist/
+node_modules/
+## Env files      # A good safeguard against accidentally publishing
+#.env.           #  private information, including security keys
+#.env.test
+# Logs
+*.log
+logs
+npm-debug.log*
+# Misc files
+.DS_Store
+notes.md        
