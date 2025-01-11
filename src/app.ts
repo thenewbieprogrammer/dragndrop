@@ -1,8 +1,26 @@
+//enums
+enum ProjectStatus {
+  Active,
+  Finished,
+}
+//project type
+class Project {
+  constructor(
+    public id: string,
+    public title: string,
+    public description: string,
+    public people: number,
+    public status: ProjectStatus,
+  ) {}
+}
+
 //project state mgmt
+
+type Listener = (projects: Project[]) => void;
 class ProjectState {
   private static instance: ProjectState;
-  private listeners: any[] = [];
-  private projects: any[] = [];
+  private listeners: Listener[] = [];
+  private projects: Project[] = [];
 
   private constructor() {}
   static getInstance() {
@@ -12,16 +30,17 @@ class ProjectState {
     this.instance = new ProjectState();
     return this.instance;
   }
-  addListener(listenerFn: Function) {
+  addListener(listenerFn: Listener) {
     this.listeners.push(listenerFn);
   }
   addProject(title: string, description: string, numberOfPeople: number) {
-    const newProject = {
-      id: Math.random().toString(),
-      title: title,
-      description: description,
-      numberOfPeople: numberOfPeople,
-    };
+    const newProject = new Project(
+      Math.random().toString(),
+      title,
+      description,
+      numberOfPeople,
+      ProjectStatus.Active,
+    );
     this.projects.push(newProject);
     for (const fn of this.listeners) {
       fn(this.projects.slice());
@@ -169,11 +188,12 @@ class ProjectInput {
 }
 
 //projectList class
+
 class ProjectList {
   templateElement: HTMLTemplateElement;
   hostElement: HTMLDivElement;
   formElement: HTMLElement;
-  assignedProjects: any[];
+  assignedProjects: Project[];
 
   constructor(private type: "active" | "finished") {
     this.templateElement = <HTMLTemplateElement>(
@@ -187,7 +207,7 @@ class ProjectList {
     );
     this.formElement = <HTMLElement>importedNode.firstElementChild;
     this.formElement.id = `${this.type}-projects`;
-    projectState.addListener((projects: any[]) => {
+    projectState.addListener((projects: Project[]) => {
       this.assignedProjects = projects;
       this.renderProjects();
     });
