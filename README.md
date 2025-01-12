@@ -1,7 +1,7 @@
 In this project ive utilised a function which checks the dom every single time, however if this was for production it would not be performant / efficient so a cached List would solve the issue here.. see below...
 
-Cache Implementation Example
-class CachedList {
+
+    class CachedList {
     private ulElement: HTMLUListElement;
     private cache: Set<string>;
 
@@ -53,7 +53,7 @@ class CachedList {
             }
         }
     }
-}
+    }
 
 // Usage
 const ulElement = document.getElementById('myList') as HTMLUListElement; // Replace with your <ul> element selector
