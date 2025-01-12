@@ -14,6 +14,23 @@ class Project {
   ) {}
 }
 
+//utility function: check if child node exists that contains a specific string value
+function isChildRenderedMatchingValue(parentElement: HTMLElement,value: string): boolean{
+  const childNodes = parentElement.childNodes;
+  for(let i = 0; i <childNodes.length; i++) {
+    const node = childNodes[i];
+
+    if(node.nodeType === Node.ELEMENT_NODE) {
+      const element = node as HTMLElement;
+      if(element.textContent?.trim() === value) {
+        return true ; // match found
+      }
+    }
+  }
+  return false; //no match found
+}
+
+
 //project state mgmt
 
 type Listener = (projects: Project[]) => void;
@@ -139,17 +156,20 @@ class ProjectInput {
       value: enteredTitle,
       required: true,
       minCharLength: 2,
+      maxCharLength: 50,
     };
     const descriptionValidation: FormValidation = {
       value: enteredDescription,
       required: true,
       minCharLength: 5,
+      maxCharLength: 50,
+
     };
     const peopleValidation: FormValidation = {
       value: +enteredPeople,
       required: true,
       minimumNumber: 1,
-      maximumNumber: 5,
+      maximumNumber: 15,
     };
     if (
       !validateFormInputValues(titleValidation) ||
@@ -208,7 +228,13 @@ class ProjectList {
     this.formElement = <HTMLElement>importedNode.firstElementChild;
     this.formElement.id = `${this.type}-projects`;
     projectState.addListener((projects: Project[]) => {
-      this.assignedProjects = projects;
+      const relevantProjects = projects.filter(prj => {
+        if(this.type === 'active') {
+          return prj.status === ProjectStatus.Active;
+        }
+        return prj.status === ProjectStatus.Finished;
+      });
+      this.assignedProjects = relevantProjects;
       this.renderProjects();
     });
     this.attach();
@@ -219,10 +245,14 @@ class ProjectList {
     const listElement = <HTMLUListElement>(
       document.getElementById(`${this.type}-projects-list`)!
     );
+    listElement.innerHTML = "";
     for (const project of this.assignedProjects) {
       const listItem = document.createElement("li");
-      listItem.textContent = project.title;
-      listElement.appendChild(listItem);
+      const isTextExistAlready = isChildRenderedMatchingValue(listElement, project.title.trim());
+      if(!isTextExistAlready) {
+        listItem.textContent = project.title;
+        listElement.appendChild(listItem);
+      }
     }
   }
   private renderContent() {
