@@ -98,7 +98,7 @@ function validateFormInputValues(input: FormValidation) {
     isValid = isValid && input.value.length < input.maxCharLength;
   }
   if (input.minimumNumber != null && typeof input.value === "number") {
-    isValid = isValid && input.value > input.minimumNumber;
+    isValid = isValid && input.value >= input.minimumNumber;
   }
   if (input.maximumNumber != null && typeof input.value === "number") {
     isValid = isValid && input.value < input.maximumNumber;
@@ -239,8 +239,37 @@ class ProjectInput extends ProjectComponent<HTMLDivElement, HTMLFormElement> {
   }
 }
 
-//projectList class
+//projectItem class
+class ProjectItem extends ProjectComponent<HTMLUListElement, HTMLLIElement>{
+  private project: Project;
 
+  constructor(hostId: string, project: Project) {
+    super("single-project", hostId, false, project.id);
+    this.project = project;
+
+    this.configure();
+    this.renderContent();
+  }
+
+  get people (){
+    if(this.project.people === 1){
+      return "1 person";
+    }
+    else{
+      return `${this.project.people} people`;
+    }
+  }
+
+  configure(){}
+  renderContent() {
+    this.formElement.querySelector('h2')!.textContent = this.project.title;
+    this.formElement.querySelector('h3')!.textContent = this.people + " assigned";
+    this.formElement.querySelector('p')!.textContent = this.project.description;
+
+  }
+}
+
+//projectList class
 class ProjectList extends ProjectComponent<HTMLDivElement, HTMLElement> {
   assignedProjects: Project[];
 
@@ -276,15 +305,9 @@ class ProjectList extends ProjectComponent<HTMLDivElement, HTMLElement> {
     );
     listElement.innerHTML = "";
     for (const project of this.assignedProjects) {
-      const listItem = document.createElement("li");
-      const isTextExistAlready = isChildRenderedMatchingValue(
-        listElement,
-        project.title.trim(),
-      );
-      if (!isTextExistAlready) {
-        listItem.textContent = project.title;
-        listElement.appendChild(listItem);
-      }
+
+      new ProjectItem(this.formElement.querySelector('ul')!.id, project);
+
     }
   }
 }
